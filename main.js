@@ -23,45 +23,29 @@ function resetBoard() {
 
 resetBoard();
 
-
-// Human = Red
-// AI = Yellow
-
-// Human Goes First: Turn = 0
-
-/*
-let turn = 0;
-let possibleMoves = 7;
-let arcX;
-let clicked = false;
-let aiTurnDone = false;
-*/
-/*
-document.getElementById('newGame').addEventListener('click', gameStart)
-
-function gameStart() {
-  document.getElementById('newGame').value = 'Restart';
-
-}*/
-
-// Empty = 0, Human = 1, AI = 2
-
-
-
-
-
-
-let win = false;
-
-
 let board = [ [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0] ]
+              [0, 0, 0, 0, 0, 0, 0] ];
 
 let columnSelect = 0;
+
+let win;
+
+let winText = {
+  win: "You Won!",
+  lose: "Computer Won, You Lose."
+}
+
+let keys = Object.keys(localStorage)
+
+let winText_serialized = JSON.stringify(winText);
+
+localStorage.setItem('winText', winText_serialized);
+
+let winText_deserialized = JSON.parse(localStorage.getItem('winText'));
 
 function checkWin() {
 
@@ -71,37 +55,92 @@ function checkWin() {
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 4; j++) {
       if (board[i][j] == 1 && board[i][j + 1] == 1 && board[i][j + 2] == 1 && board[i][j + 3] == 1) {
-        alert('You Won!');
-        //win = true;
+        win = true;
+        alert(winText_deserialized.win);
       }
     }
   }
 
   // Check Vertically
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 6; j++) {
-      if (board[i][j])
+  for (let i = 0; i < 7; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[j][i] === 1 && board[j + 1][i] === 1 && board[j + 2][i] === 1 && board[j + 3][i] === 1) {
+        win = true;
+        alert(winText_deserialized.win);
+      }
     }
   }
-  /*
 
-  going to check board[0][0]
-            then board[1][0]
-            then board[2][0]
-            then board[3][0]
-            then board[4][0]
-            then board[5][0]
+  // Check Diagonally Left
 
-  */
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[j][i] === 1 && board[j + 1][i + 1] === 1 && board[j + 2][i + 2] === 1 && board[j + 3][i + 3] === 1) {
+        win = true;
+        alert(winText_deserialized.win);
+      }
+    }
+  }
+
+  // Check Diagonally Right
+
+  for (let i = 0; i < 4; i++) {
+    for (let j = 5; j > 2; j--) {
+      if (board[j][i] === 1 && board[j - 1][i + 1] === 1 && board[j - 2][i + 2] === 1 && board[j - 3][i + 3] === 1) {
+        win = true;
+        alert(winText_deserialized.win);
+      }
+    }
+  }
 
   // For AI Player
+  // Check Horizontally
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 4; j++) {
+      if (board[i][j] === 2 && board[i][j + 1] === 2 && board[i][j + 2] === 2 && board[i][j + 3] === 2) {
+        win = false;
+        alert(winText_deserialized.lose);
+      }
+    }
+  }
 
+  // Check Vertically
+  for (let i = 0; i < 7; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[j][i] === 2 && board[j + 1][i] === 2 && board[j + 2][i] === 2 && board[j + 3][i] === 2) {
+        win = false;
+        alert(winText_deserialized.lose);
+      }
+    }
+  }
 
+  // Check Diagonally Left
 
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[j][i] === 2 && board[j + 1][i + 1] === 2 && board[j + 2][i + 2] === 2 && board[j + 3][i + 3] === 2) {
+        win = false;
+        alert(winText_deserialized.lose);
+      }
+    }
+  }
 
+  // Check Diagonally Right
 
+  for (let i = 0; i < 4; i++) {
+    for (let j = 5; j > 2; j--) {
+      if (board[j][i] === 2 && board[j - 1][i + 1] === 2 && board[j - 2][i + 2] === 2 && board[j - 3][i + 3] === 2) {
+        win = false;
+        alert(winText_deserialized.lose);
+      }
+    }
+  }
 
+  // Computer's Turn
 
+  if (win !== true) {
+    aiTurn();
+  }
 
 }
 
@@ -157,7 +196,9 @@ function draw() {
     ctx.fillRect((columnSelect - 1) * 100, cnv.height - 10, 100, 10);
   }
 
-  requestAnimationFrame(draw);
+  if (win !== true) {
+    requestAnimationFrame(draw);
+  }
 }
 
 // Human Move
@@ -180,7 +221,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 200 && full2 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][1] == 0) {
@@ -188,7 +228,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 300 && full3 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][2] == 0) {
@@ -196,7 +235,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 400 && full4 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][3] == 0) {
@@ -204,7 +242,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 500 && full5 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][4] == 0) {
@@ -212,7 +249,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 600 && full6 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][5] == 0) {
@@ -220,7 +256,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else if (mousePos.x < 700 && full7 === false) {
     for (let i = 5; i >= 0; i--) {
       if (board[i][6] == 0) {
@@ -228,7 +263,6 @@ canvas.addEventListener('click', function(evt2) {
         break;
       }
     }
-    aiTurn();
   } else {
     alert('Sorry, go somewhere else.');
   }
@@ -322,164 +356,11 @@ function removeAll(anArray, item) {
   }
 }
 
+document.getElementById('newGame').addEventListener('click', newGame_handler)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-requestAnimationFrame(draw);
-
-function draw() {
-  ctx.clearRect(0, 0, cnv.width, cnv.height);
-  for (let i = 1; i < 7; i++) {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'black';
-    ctx.moveTo(i * 100, 0);
-    ctx.lineTo(i * 100, cnv.height);
-    ctx.stroke();
-  }
-
-  for (let i = 1; i < 6; i++) {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'black';
-    ctx.moveTo(0, i * 100);
-    ctx.lineTo(cnv.width, i * 100);
-    ctx.stroke();
-  }
-
-  // Check board
-
-
-  // move 1
-
-
-  function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-  }
-
-  canvas.addEventListener('mousemove', function(evt) {
-    var mousePos = getMousePos(canvas, evt);
-    if (clicked === false) {
-      if (mousePos.x < 100) {
-        arcX = 50;
-      } else if (mousePos.x < 200) {
-        arcX = 150;
-      } else if (mousePos.x < 300) {
-        arcX = 250;
-      } else if (mousePos.x < 400) {
-        arcX = 350;
-      } else if (mousePos.x < 500) {
-        arcX = 450;
-      } else if (mousePos.x < 600) {
-        arcX = 550;
-      } else if (mousePos.x < 700) {
-        arcX = 650;
-      }
-    }
-  }, false);
-
-  canvas.addEventListener('click', function(evt2) {
-    var mousePos = getMousePos(canvas, evt2);
-    clicked = true;
-    aiTurn();
-  }, false);
-
-  ctx.fillStyle = 'red';
-  ctx.beginPath();
-  ctx.arc(arcX, 550, 42, 0, 2 * Math.PI);
-  ctx.fill();
-
-  if (aiTurnDone === true) {
-    ctx.fillStyle = 'yellow';
-    ctx.beginPath();
-    ctx.arc(aiX, 550, 42, 0, 2 * Math.PI);
-    ctx.fill();
-  }
-
-  requestAnimationFrame(draw);
+function newGame_handler() {
+  location.reload();
 }
-
-/*
-let aiX;
-
-function aiTurn() {
-  aiX = Math.ceil(Math.random() * 5) * 100 + 50;
-  if (aiX === arcX && aiY) {
-    aiX = Math.ceil(Math.random() * 5) * 100 + 50;
-  }
-  aiTurnDone = true;
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
